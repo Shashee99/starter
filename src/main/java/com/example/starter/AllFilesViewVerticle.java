@@ -14,7 +14,8 @@ public class AllFilesViewVerticle extends AbstractVerticle {
   public void start(Promise<Void> startPromise) throws Exception {
     startPromise.complete();
     vertx.eventBus().consumer("give.allfiles",message -> {
-      String filePath = "C:\\uploads";
+//      String filePath = "C:\\uploads";
+      String filePath = "\\home\\shashika\\uploads";
       final JsonArray filenames = new JsonArray();
 
       vertx.fileSystem().readDir(filePath, result -> {
