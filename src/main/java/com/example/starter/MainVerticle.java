@@ -22,9 +22,18 @@ public class MainVerticle extends AbstractVerticle {
       }
       LOG.info("Deployed {}!", MainVerticle.class.getName());
     });
-    vertex.deployVerticle(new UploadVerticle());
-    vertex.deployVerticle(new DownloadVerticle());
-    vertex.deployVerticle(new AllFilesViewVerticle());
+//    vertex.deployVerticle(new UploadVerticle());
+//    vertex.deployVerticle(new DownloadVerticle());
+//    vertex.deployVerticle(new AllFilesViewVerticle());
+    vertex.deployVerticle(new UploadVerticle()).onSuccess(id->{
+      LOG.info("Deployed {} with {}",UploadVerticle.class.getName(),id);
+    });
+    vertex.deployVerticle(new DownloadVerticle()).onSuccess(id->{
+      LOG.info("Deployed {} with {}",DownloadVerticle.class.getName(),id);
+    });;
+    vertex.deployVerticle(new AllFilesViewVerticle()).onSuccess(id->{
+      LOG.info("Deployed {} with {}",AllFilesViewVerticle.class.getName(),id);
+    });;
   }
   @Override
   public void start(Promise<Void> startPromise) throws Exception {
