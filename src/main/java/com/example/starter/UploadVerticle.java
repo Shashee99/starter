@@ -13,14 +13,14 @@ import java.nio.file.Paths;
 public class UploadVerticle extends AbstractVerticle {
   private static final Logger LOG = LoggerFactory.getLogger(UploadVerticle.class);
 //  private static final String UPLOADS_DIRECTORY = "C:\\uploads\\";
-  private static final String UPLOADS_DIRECTORY = "\\uploads\\";
+  private static final String UPLOADS_DIRECTORY = "\\home\\shashika\\uploads\\";
   @Override
   public void start() {
     LOG.info("Deployed {}!", UploadVerticle.class.getName());
     vertx.eventBus().consumer("upload.file", message -> {
       Buffer buffer = (Buffer) message.body(); // Get the Buffer object
       String filename = message.headers().get("filename");
-
+      System.out.println(filename);
 
       byte[] fileData = buffer.getBytes();
 
