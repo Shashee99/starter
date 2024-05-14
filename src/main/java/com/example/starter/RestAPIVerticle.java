@@ -34,6 +34,7 @@ public class RestAPIVerticle extends AbstractVerticle {
 //    AssetsRestApi.attach(restApi);
     restApi.post("/upload").handler(BodyHandler.create().setMergeFormAttributes(true).setDeleteUploadedFilesOnEnd(true));
     restApi.post("/upload").handler(ctx -> {
+      LOG.info("upload route");
       List<FileUpload> uploads = ctx.fileUploads();
       for (FileUpload fileUpload : uploads) {
         vertx.eventBus().send("upload.file", vertx.fileSystem().readFileBlocking(fileUpload.uploadedFileName()), new DeliveryOptions().addHeader("filename", fileUpload.fileName()));
