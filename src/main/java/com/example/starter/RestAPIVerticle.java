@@ -24,6 +24,7 @@ public class RestAPIVerticle extends AbstractVerticle {
   @Override
   public void start(Promise<Void> startPromise) throws Exception {
 //    super.start(startPromise);
+    LOG.info("Deployed {}!", RestAPIVerticle.class.getName());
     startHTTPServer(startPromise);
 
   }
@@ -70,7 +71,7 @@ public class RestAPIVerticle extends AbstractVerticle {
     restApi.get("/download").handler(context -> {
 
       String fileName = context.request().getParam("fileName");
-      LOG.info("dowload handler {}!", RestAPIVerticle.class.getName());
+      LOG.info("download handler {}!", RestAPIVerticle.class.getName());
 
       vertx.eventBus().request("download.file",fileName,asyncResult ->{
         if (asyncResult.succeeded()) {
@@ -148,7 +149,7 @@ public class RestAPIVerticle extends AbstractVerticle {
     vertx.createHttpServer()
       .requestHandler(restApi)
       .exceptionHandler(err -> LOG.error("HTTP Server error : ",err))
-      .listen(8888, http -> {
+      .listen(8080, http -> {
         if (http.succeeded()) {
           startPromise.complete();
           LOG.info("HTTP server started on port 8888");

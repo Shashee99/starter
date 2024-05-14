@@ -11,6 +11,7 @@ public class DownloadVerticle extends AbstractVerticle {
   @Override
   public void start(Promise<Void> startPromise) throws Exception {
     startPromise.complete();
+    LOG.info("Deployed {}!", DownloadVerticle.class.getName());
     vertx.eventBus().consumer("download.file",hdl ->{
       String fileName = hdl.body().toString();
       System.out.println(fileName);
