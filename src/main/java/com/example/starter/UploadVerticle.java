@@ -31,8 +31,9 @@ public class UploadVerticle extends AbstractVerticle {
   private void saveFile(String filename, byte[] fileData) {
     try {
       Path filePath = Paths.get(UPLOADS_DIRECTORY + filename);
-      Files.write(filePath, fileData);
-      LOG.info("File saved successfully at: {} ", filePath);
+      Path fp = Files.write(filePath, fileData);
+      LOG.info("File saved {}",fp.toString());
+      LOG.info("File saved successfully at : {} ", filePath);
     } catch (IOException e) {
       e.printStackTrace();
       LOG.error("Error occurred");
