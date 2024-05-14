@@ -13,7 +13,8 @@ import java.nio.file.Paths;
 public class UploadVerticle extends AbstractVerticle {
   private static final Logger LOG = LoggerFactory.getLogger(UploadVerticle.class);
 //  private static final String UPLOADS_DIRECTORY = "C:\\uploads\\";
-private static final String UPLOADS_DIRECTORY = "/home/shashika/uploads/";
+//private static final String UPLOADS_DIRECTORY = "/home/shashika/uploads/";
+private static final String UPLOADS_DIRECTORY = "/home/ec2-user/uploads/";
   @Override
   public void start() {
     LOG.info("Deployed {}!", UploadVerticle.class.getName());
