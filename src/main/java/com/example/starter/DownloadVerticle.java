@@ -4,7 +4,7 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+//@Log4j2
 public class DownloadVerticle extends AbstractVerticle {
   private static final Logger LOG = LoggerFactory.getLogger(RestAPIVerticle.class);
   private static final String UPLOADS_DIRECTORY = "C:\\uploads\\";
@@ -15,7 +15,7 @@ public class DownloadVerticle extends AbstractVerticle {
     vertx.eventBus().consumer("download.file",hdl ->{
       String fileName = hdl.body().toString();
       System.out.println(fileName);
-   String filePath = "C:\\uploads\\" + fileName;
+   String filePath = "/home/ec2-user/uploads/" + fileName;
       vertx.fileSystem().readFile(filePath, result -> {
         if (result.succeeded()) {
           byte[] fileData = result.result().getBytes();
