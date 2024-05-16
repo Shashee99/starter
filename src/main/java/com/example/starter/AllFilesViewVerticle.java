@@ -3,6 +3,7 @@ package com.example.starter;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,9 +15,10 @@ public class AllFilesViewVerticle extends AbstractVerticle {
   public void start(Promise<Void> startPromise) throws Exception {
     startPromise.complete();
     LOG.info("Deployed {}!", AllFilesViewVerticle.class.getName());
-    vertx.eventBus().consumer("give.allfiles",message -> {
+    JsonObject address = config().getJsonObject("addresses");
+    vertx.eventBus().consumer(address.getString("allFiles"),message -> {
 //      String filePath = "C:\\uploads";
-      String filePath = "\\home\\shashika\\uploads";
+      String filePath = config().getString("location");
       final JsonArray filenames = new JsonArray();
 
       vertx.fileSystem().readDir(filePath, result -> {

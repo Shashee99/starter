@@ -1,5 +1,8 @@
 package com.example.starter;
 
+import io.vertx.config.ConfigRetriever;
+import io.vertx.config.ConfigRetrieverOptions;
+import io.vertx.config.ConfigStoreOptions;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Handler;
 import io.vertx.core.Promise;
@@ -31,14 +34,16 @@ public class RestAPIVerticle extends AbstractVerticle {
   private void startHTTPServer(Promise<Void> startPromise) {
     Router restApi = Router.router(vertx);
     restApi.route().failureHandler(handleFailure());
+
+    JsonObject address = config().getJsonObject("addresses");
+
 //    AssetsRestApi.attach(restApi);
     restApi.post("/upload").handler(BodyHandler.create().setMergeFormAttributes(true).setDeleteUploadedFilesOnEnd(true));
     restApi.post("/upload").handler(ctx -> {
       LOG.info("upload route");
       List<FileUpload> uploads = ctx.fileUploads();
       for (FileUpload fileUpload : uploads) {
-        vertx.eventBus().send("upload.file", vertx.fileSystem().readFileBlocking(fileUpload.uploadedFileName()), new DeliveryOptions().addHeader("filename", fileUpload.fileName()));
-
+        vertx.eventBus().send(address.getString("upload"), vertx.fileSystem().readFileBlocking(fileUpload.uploadedFileName()), new DeliveryOptions().addHeader("filename", fileUpload.fileName()));
       }
       ctx.response().setStatusCode(200).end("File uploaded successfully");
     });
@@ -74,7 +79,7 @@ public class RestAPIVerticle extends AbstractVerticle {
       String fileName = context.request().getParam("fileName");
       LOG.info("download handler {}!", RestAPIVerticle.class.getName());
 
-      vertx.eventBus().request("download.file",fileName,asyncResult ->{
+      vertx.eventBus().request(address.getString("download"),fileName,asyncResult ->{
         if (asyncResult.succeeded()) {
           // File download succeeded, response received
           Message<Object> message = asyncResult.result();
@@ -91,27 +96,12 @@ public class RestAPIVerticle extends AbstractVerticle {
         }
       });
 
-//      String filePath = "C:\\uploads\\" + fileName;
-//      vertx.fileSystem().readFile(filePath, result -> {
-//        if (result.succeeded()) {
-//
-//          HttpServerResponse response = context.response();
-//          response.putHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
-//          response.putHeader("Content-Type", "application/octet-stream");
-//
-//
-//          response.end(result.result());
-//        } else {
-//          // Failed to read the file
-//          context.fail(404); // Not Found
-//        }
-//      });
     });
     restApi.get("/allfiles").handler(context -> {
 
 //      String fileName = context.request().getParam("fileName");
       LOG.info("allfile get handler {}!", RestAPIVerticle.class.getName());
-      vertx.eventBus().request("give.allfiles","allfiles",result->{
+      vertx.eventBus().request(address.getString("allFiles"),"allfiles",result->{
         if (result.succeeded()) {
           Message<Object> message = result.result();
           JsonArray filenames = (JsonArray) message.body();
@@ -147,17 +137,24 @@ public class RestAPIVerticle extends AbstractVerticle {
         }
       });
     });
-    vertx.createHttpServer()
-      .requestHandler(restApi)
-      .exceptionHandler(err -> LOG.error("HTTP Server error : ",err))
-      .listen(8080, http -> {
-        if (http.succeeded()) {
-          startPromise.complete();
-          LOG.info("HTTP server started on port 8888");
-        } else {
-          startPromise.fail(http.cause());
-        }
-      });
+
+
+
+        vertx.createHttpServer()
+          .requestHandler(restApi)
+          .exceptionHandler(err -> LOG.error("HTTP Server error : ",err))
+          .listen(config().getInteger("port",8080), http -> {
+            if (http.succeeded()) {
+              startPromise.complete();
+              LOG.info("HTTP server started on port {}",config().getInteger("port",8080));
+            } else {
+              startPromise.fail(http.cause());
+            }
+          });
+//        System.out.println(config.getString("path"));
+//        System.out.println(config.getString("port"));
+
+
   }
 
   private static Handler<RoutingContext> handleFailure() {
