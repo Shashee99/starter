@@ -13,18 +13,20 @@ import io.vertx.ext.web.FileUpload;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.log4j.Log4j;
+import lombok.extern.log4j.Log4j2;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class RestAPIVerticle extends AbstractVerticle {
-  private static final Logger LOG = LoggerFactory.getLogger(RestAPIVerticle.class);
+ private static final Logger log = LogManager.getLogger(RestAPIVerticle.class);
   @Override
   public void start(Promise<Void> startPromise) throws Exception {
 //    super.start(startPromise);
-    LOG.info("Deployed {}!", RestAPIVerticle.class.getName());
+    log.info("Deployed {}!", RestAPIVerticle.class.getName());
     startHTTPServer(startPromise);
 
   }
@@ -37,7 +39,7 @@ public class RestAPIVerticle extends AbstractVerticle {
 //    AssetsRestApi.attach(restApi);
     restApi.post("/upload").handler(BodyHandler.create().setMergeFormAttributes(true).setDeleteUploadedFilesOnEnd(true));
     restApi.post("/upload").handler(ctx -> {
-      LOG.info("upload route");
+      log.info("upload route");
       List<FileUpload> uploads = ctx.fileUploads();
       for (FileUpload fileUpload : uploads) {
         vertx.eventBus().send(address.getString("upload"), vertx.fileSystem().readFileBlocking(fileUpload.uploadedFileName()), new DeliveryOptions().addHeader("filename", fileUpload.fileName()));
@@ -49,7 +51,7 @@ public class RestAPIVerticle extends AbstractVerticle {
 //      EventBus eb = vertx.eventBus();
 //      eb.publish("uploadfile","uploading the file");
 //
-//      LOG.info("upload handler !");
+//      log.info("upload handler !");
 //      List<FileUpload> uploads = ctx.fileUploads();
 //      for (FileUpload fileUpload : uploads) {
 //        System.out.println("Uploaded file : " + fileUpload.fileName());
@@ -65,7 +67,7 @@ public class RestAPIVerticle extends AbstractVerticle {
 //          response.setStatusCode(200).end("File uploaded successfully");
 //        } catch (Exception e) {
 //
-//          LOG.error("Error uploading file: " + fileUpload.fileName(), e);
+//          log.error("Error uploading file: " + fileUpload.fileName(), e);
 //          ctx.fail(500);
 //          return;
 //        }
@@ -74,7 +76,7 @@ public class RestAPIVerticle extends AbstractVerticle {
     restApi.get("/download").handler(context -> {
 
       String fileName = context.request().getParam("fileName");
-      LOG.info("download handler {}!", RestAPIVerticle.class.getName());
+      log.info("download handler {}!", RestAPIVerticle.class.getName());
 
       vertx.eventBus().request(address.getString("download"),fileName,asyncResult ->{
         if (asyncResult.succeeded()) {
@@ -97,7 +99,7 @@ public class RestAPIVerticle extends AbstractVerticle {
     restApi.get("/allfiles").handler(context -> {
 
 //      String fileName = context.request().getParam("fileName");
-      LOG.info("allfile get handler {}!", RestAPIVerticle.class.getName());
+      log.info("allfile get handler {}!", RestAPIVerticle.class.getName());
       vertx.eventBus().request(address.getString("allFiles"),"allfiles",result->{
         if (result.succeeded()) {
           Message<Object> message = result.result();
@@ -113,13 +115,13 @@ public class RestAPIVerticle extends AbstractVerticle {
           response.setStatusCode(200);
           response.end(new JsonArray(namelist).toBuffer());
         } else {
-       LOG.error("error occured");
+       log.error("error occured");
         }
       });
 
     });
     restApi.delete("/delete").handler(context -> {
-      LOG.info("delete handler {}!", RestAPIVerticle.class.getName());
+      log.info("delete handler {}!", RestAPIVerticle.class.getName());
       String fileName = context.request().getParam("fileName");
 
       String filePath = "C:\\uploads\\" + fileName;
@@ -139,11 +141,11 @@ public class RestAPIVerticle extends AbstractVerticle {
 
         vertx.createHttpServer()
           .requestHandler(restApi)
-          .exceptionHandler(err -> LOG.error("HTTP Server error : ",err))
+          .exceptionHandler(err -> log.error("HTTP Server error : ",err))
           .listen(config().getInteger("port",8080), http -> {
             if (http.succeeded()) {
               startPromise.complete();
-              LOG.info("HTTP server started on port {}",config().getInteger("port",8080));
+              log.info("HTTP server started on port {}",config().getInteger("port",8080));
             } else {
               startPromise.fail(http.cause());
             }
@@ -160,7 +162,7 @@ public class RestAPIVerticle extends AbstractVerticle {
 //      Ignore completed response
         return;
       }
-      LOG.error("Route Error : ", errContext.failure());
+      log.error("Route Error : ", errContext.failure());
       errContext.response()
         .setStatusCode(500)
         .end(new JsonObject().put("message", "Something went wrong :(").toBuffer());

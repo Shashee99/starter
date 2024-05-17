@@ -4,16 +4,18 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 
 import io.vertx.core.json.JsonObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.log4j.Log4j2;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 
 public class DownloadVerticle extends AbstractVerticle {
-  private static final Logger LOG = LoggerFactory.getLogger(RestAPIVerticle.class);
+ private static final Logger log = LogManager.getLogger(RestAPIVerticle.class);
 
   @Override
   public void start(Promise<Void> startPromise) throws Exception {
     startPromise.complete();
-    LOG.info("Deployed {}!", DownloadVerticle.class.getName());
+    log.info("Deployed {}!", DownloadVerticle.class.getName());
     JsonObject address = config().getJsonObject("addresses");
 
 
@@ -27,7 +29,7 @@ public class DownloadVerticle extends AbstractVerticle {
               // Send the file data back as a reply to the request
               hdl.reply(fileData);
             } else {
-              LOG.error("error occured");
+              log.error("error occured");
               hdl.fail(404, "File not found");
             }
           });

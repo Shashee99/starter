@@ -4,17 +4,19 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.log4j.Log4j2;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 
 import java.util.List;
 
 public class AllFilesViewVerticle extends AbstractVerticle {
-  private static final Logger LOG = LoggerFactory.getLogger(RestAPIVerticle.class);
+ private static final Logger log = LogManager.getLogger(RestAPIVerticle.class);
   @Override
   public void start(Promise<Void> startPromise) throws Exception {
     startPromise.complete();
-    LOG.info("Deployed {}!", AllFilesViewVerticle.class.getName());
+    log.info("Deployed {}!", AllFilesViewVerticle.class.getName());
     JsonObject address = config().getJsonObject("addresses");
     vertx.eventBus().consumer(address.getString("allFiles"),message -> {
 //      String filePath = "C:\\uploads";
@@ -33,7 +35,7 @@ public class AllFilesViewVerticle extends AbstractVerticle {
 
 
         } else {
-    LOG.error("error occured");
+    log.error("error occured");
 //          context.fail(404); // Not Found
         }
       });

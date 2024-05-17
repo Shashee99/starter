@@ -8,12 +8,15 @@ import io.vertx.core.*;
 
 
 import io.vertx.core.json.JsonObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 
 public class MainVerticle extends AbstractVerticle {
-  private static final Logger LOG = LoggerFactory.getLogger(MainVerticle.class);
+ private static final Logger log = LogManager.getLogger(MainVerticle.class);
+
+
   @Override
   public void start(Promise<Void> startPromise) throws Exception {
 
@@ -29,7 +32,7 @@ public class MainVerticle extends AbstractVerticle {
     retriever.getConfig().onComplete(r ->{
       if(r.failed())
       {
-        LOG.info("error occured");
+        log.info("error occured");
       }
       else {
         JsonObject config = r.result();
@@ -38,18 +41,18 @@ public class MainVerticle extends AbstractVerticle {
           )
           .onFailure(startPromise::fail)
           .onSuccess(id -> {
-            LOG.info("Deployed {} with {}",RestAPIVerticle.class.getName(),id);
+            log.info("Deployed {} with {}",RestAPIVerticle.class.getName(),id);
 
             vertx.deployVerticle(new UploadVerticle(),new DeploymentOptions().setConfig(config).setThreadingModel(ThreadingModel.WORKER)).onSuccess(
               id1->{
-                LOG.info("Deployed {} with {}",UploadVerticle.class.getName(),id1);
+                log.info("Deployed {} with {}",UploadVerticle.class.getName(),id1);
               }
             );
             vertx.deployVerticle(new DownloadVerticle(),new DeploymentOptions().setConfig(config).setThreadingModel(ThreadingModel.WORKER)).onSuccess(id2 -> {
-              LOG.info("Deployed {} with {}",DownloadVerticle.class.getName(),id2);
+              log.info("Deployed {} with {}",DownloadVerticle.class.getName(),id2);
             });;
             vertx.deployVerticle(new AllFilesViewVerticle(),new DeploymentOptions().setConfig(config).setThreadingModel(ThreadingModel.WORKER)).onSuccess(id3 -> {
-              LOG.info("Deployed {} with {}",AllFilesViewVerticle.class.getName(),id3);
+              log.info("Deployed {} with {}",AllFilesViewVerticle.class.getName(),id3);
             });
             startPromise.complete();
           });
